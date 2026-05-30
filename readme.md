@@ -116,11 +116,11 @@ stage view
 ## Step7: Install  Tools: Manage Jenkins->Tools
    - add jdk: "jdk17" ->install from adoptium.net->version- 17
    - add SonarQube Scanner: "sonar-scanner"
-   - add NodeJs: "node16" -> version 16.15.1
+   - add NodeJs: "node18" -> version 18.10.1
    - docker: "docker"
 
 ### **Configure Java and Nodejs in Global Tool Configuration**
-Goto Manage Jenkins → Tools → Install JDK(17) and NodeJs(16)→ Click on Apply and Save
+Goto Manage Jenkins → Tools → Install JDK(17) and NodeJs(18)→ Click on Apply and Save
 #### Jdk
 ![image](https://github.com/user-attachments/assets/fe876745-d024-403c-806b-4a7d8c1dba11)
 #### SonarQube-Scanner
@@ -166,12 +166,13 @@ Goto Manage Jenkins → Tools → Install JDK(17) and NodeJs(16)→ Click on App
 ## Step 11: Restart Jenkins
 
 ## Step12: Create Pipeline
+
 ````
 pipeline {
     agent any
     tools {
         jdk 'jdk17'
-        nodejs 'node16'
+        nodejs 'node18'
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
@@ -180,7 +181,7 @@ pipeline {
 
         stage('Code-Pull') {
             steps {
-                git branch: 'main', url: 'https://github.com/abhipraydhoble/netflix.git'
+                git branch: 'main', url: 'https://github.com/prathamnandgirwar/Project-Netflix-Clone.git'
             }
         }
         stage("Sonarqube Analysis") {
@@ -212,25 +213,26 @@ pipeline {
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker'){   
-                       sh "docker build --build-arg TMDB_V3_API_KEY=020581a34f3ab93b1360a55bea864bd9 -t abhipraydh96/moviesite ."
-                       sh "docker push abhipraydh96/moviesite "
+                       sh "docker build --no-cache --build-arg TMDB_V3_API_KEY=020581a34f3ab93b1360a55bea864bd9 -t prathamnandgiwar/moviesite ."
+                       sh "docker push prathamnandgiwar/moviesite "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image abhipraydh96/moviesite > trivyimage.txt" 
+                sh "trivy image prathamnandgiwar/moviesite > trivyimage.txt" 
             }
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name netflix -p 8081:80 abhipraydh96/moviesite'
+                sh 'docker run -d --name netflix -p 8081:80 prathamnandgiwar/moviesite'
             }
         }
         
     }
 }
+     
 ````
 Note: 
 - ensure jenkins user has permission to create container
